@@ -1,0 +1,19 @@
+﻿@{
+    string search = Request.QueryString["search"];
+
+}
+<div class="header-search">
+    @using (Html.BeginForm("Index", "Home", FormMethod.Get))
+    {
+        <select name="category" class="input-select">
+            <option selected value=0>Tất Cả</option>
+            @foreach (var category in ViewBag.listCategory)
+            {
+                <option value=@category.ID>@category.Name</option>
+            }
+            }
+        </select>
+        <input class="input input-search" name="search" placeholder="Nhập từ khóa tìm kiếm..." value="@search">
+        <button class="search-btn" type="submit">Tìm Kiếm</button>
+    }
+</div>

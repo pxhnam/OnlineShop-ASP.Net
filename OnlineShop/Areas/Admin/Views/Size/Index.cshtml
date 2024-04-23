@@ -1,0 +1,256 @@
+﻿@using PagedList
+@using PagedList.Mvc
+@model PagedList.IPagedList<OnlineShop.Models.Size>
+@{
+    ViewBag.Title = "Danh Sách Size";
+}
+<style>
+    button {
+        margin: 0 5px;
+    }
+</style>
+<!-- Page Heading -->
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary"><a href="#" id="btnCreate" data-toggle="modal" data-target="#exampleModal">Thêm mới</a></h6>
+    </div>
+    <div class="card-body">
+        <!-- Search -->
+        <div class="row">
+            <div class="col-sm-12" style="display:flex; justify-content:center; margin-bottom: 20px">
+                <input type="text" id="Search" class="form-control form-control-sm" placeholder="Nhập từ khóa cần tìm kiếm" style="width: 250px; text-align:center">
+            </div>
+        </div>
+        <!-- /Search -->
+        <div class="table-responsive">
+            <table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                <thead>
+                    <tr role="row">
+                        <th style="width: 268px;">ID</th>
+                        <th style="width: 401px;">Tên</th>
+                        <th style="width: 199px;">Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody id="tblSize">
+                    @*@foreach (var item in Model)
+                        {
+                            <tr class="odd" data-id="@item.ID">
+                                <td>@item.ID</td>
+                                <td class="nameSize">@item.Name</td>
+                                <td>
+                                    <button class="btn btn-info" id="btnEdit" data-toggle="modal" data-target="#exampleModal"><i class="fas fa-pen"></i></button>
+                                    <button class="btn btn-danger" id="btnDelete" data-toggle="modal" data-target="#my-modal"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            </tr>
+                        }*@
+                </tbody>
+            </table>
+            <div class="form_page" style="display:flex; justify-content:center">
+                <div class="pagination-container">
+                    <ul class="pagination">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alter Delete -->
+<div id="my-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0">
+            <div class="modal-body p-0">
+                <div class="card border-0 p-sm-3 p-2 justify-content-center">
+                    <div class="card-header pb-0 bg-white border-0 ">
+                        <div class="row"><div class="col ml-auto"><button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div> </div>
+                        <p class="font-weight-bold mb-2"> Thông Báo !</p><p class="text-muted"></p>
+                    </div>
+                    <div class="card-body px-sm-4 mb-2 pt-1 pb-0">
+                        <div class="row justify-content-end no-gutters">
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-light text-muted" data-dismiss="modal">Hủy</button>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" id="btnSubmit" class="btn btn-danger px-4" data-dismiss="modal" style="margin-left:5px">Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Alter Delete -->
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <!-- Input -->
+                <div class="form-group">
+                    <input class="form-control" type="text" id="inputSize" name="Name" />
+                </div>
+                <!-- /Input -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="btnSave">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Modal -->
+<link href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/toasty.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/toasty.js"></script>
+@section Scripts {
+    <script>
+        var options = {
+            autoClose: true,
+            progressBar: true,
+            enableSounds: true
+        };
+        var ID;
+        var toast = new Toasty(options);
+        toast.configure(options);
+        var keySearch = '';
+        var page = 1;
+        $(document).ready(function () {
+            loadData(keySearch, page);
+            createSize();
+            updateSize();
+            removeSize();
+        });
+        $(document).on('keyup', '#Search', function () {
+            keySearch = $(this).val();
+            loadData(keySearch, page);
+        })
+        function loadData(keySearch, page) {
+            $.ajax({
+                url: '/Admin/Size/listSize',
+                type: 'GET',
+                data: { keySearch: keySearch, page: page },
+                contentType: 'application/json',
+                success: function (data) {
+                    $('#tblSize').empty();
+                    $.each(data.listSize, function (index, item) {
+                        var row = "<tr class='odd' data-id='" + item.ID + "'>" +
+                            "<td>" + item.ID + "</td>" +
+                            "<td class='nameSize'>" + item.Name + "</td>" +
+                            "<td><button class='btn btn-info' id='btnEdit' data-toggle='modal' data-target='#exampleModal'><i class='fas fa-pen'></i></button>" +
+                            "<button class='btn btn-danger' id='btnDelete' data-toggle='modal' data-target='#my-modal'><i class='fas fa-trash-alt'></i></button>" +
+                            "</td></tr>";
+                        $('#tblSize').append(row);
+                    })
+                    //Phan trang
+                    if (data.numPage > 1) {
+                        $('.pagination-container .pagination').empty();
+                        for (i = 1; i <= data.numPage; i++) {
+                            let row = '<li><a href="">' + i + '</a></li>';
+                            $('.pagination-container .pagination').append(row);
+
+                        }
+                    }
+                },
+                error: function () {
+                }
+            });
+        }
+        $('.pagination-container').on('click', 'li', function (e) {
+            e.preventDefault();
+            page = $(this).text();
+            loadData(keySearch, page);
+            $('.pagination-container li').removeClass('active');
+            $(this).addClass('active');
+        })
+        function removeSize() {
+            var name;
+            $(document).on("click", "#btnDelete", function () {
+                ID = $(this).closest('tr').data("id");
+                name = $(this).closest('tr').find('.nameSize').text();
+                document.querySelector('.text-muted').innerHTML = "Bạn có chắc chắn muốn xóa size " + name + " ?";
+            });
+            $(document).on("click", "#btnSubmit", function () {
+                $.ajax({
+                    url: '/Admin/Size/Delete',
+                    type: 'POST',
+                    data: { ID: ID },
+                    success: function (result) {
+                        if (result.success) {
+                            loadData();
+                            toast.success("Xóa thành công size " + name);
+                        } else {
+                            toast.error("Xóa thất bại!");
+                        }
+                    }
+                });
+            })
+        }
+        function updateSize() {
+            $(document).on('click', '#btnEdit', function () {
+                ID = $(this).closest('tr').data('id');
+                $('.modal-title').html("Cập Nhật Size");
+                $.ajax({
+                    url: '/Admin/Size/getSize',
+                    type: 'GET',
+                    data: { ID: ID },
+                    success: function (result) {
+                        if (result.success) {
+                            $('#inputSize').val(result.size);
+                        } else { }
+                    }
+                })
+            })
+            $(document).on('click', '#btnSave', function () {
+                var name = $('#inputSize').val();
+                if (name.trim().length == 0) {
+                    toast.error("Vui lòng nhập dữ liệu!");
+                } else {
+                    $.ajax({
+                        url: '/Admin/Size/updateSize',
+                        type: 'POST',
+                        data: { ID: ID, name: name },
+                        success: function (result) {
+                            if (result.success) {
+                                loadData();
+                                toast.success("Cập nhật thành công!");
+                            }
+                        }
+                    })
+                }
+            })
+        }
+        function createSize() {
+            $(document).on('click', '#btnCreate', function () {
+                $('.modal-title').html("Thêm Mới Size");
+                $('#inputSize').val('');
+                ID = null;
+            })
+            $(document).on('click', '#btnSave', function () {
+                var name = $('#inputSize').val();
+                if (ID != null) return;
+                if (name.trim().length == 0) {
+                    return;
+                } else {
+                    $.ajax({
+                        url: '/Admin/Size/createSize',
+                        type: 'POST',
+                        data: { name: name },
+                        success: function (result) {
+                            if (result.success) {
+                                loadData();
+                                toast.success("Thêm mới thành công!");
+                            }
+                        }
+                    })
+                }
+            })
+        }
+    </script>
+}

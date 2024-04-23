@@ -1,0 +1,137 @@
+﻿@using OnlineShop.Models
+@model OnlineShop.Models.InformationPayment
+@{
+    ViewBag.Title = "Thanh Toán";
+    DatabaseContext _Context = new DatabaseContext();
+    var listShoppingCart = Session["ShoppingCart"] as List<Cart>;
+}
+@using (Html.BeginForm("Index", "CheckOut", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "", role = "form" }))
+{
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+
+
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="col-md-7">
+                    <!-- Billing Details -->
+                    <div class="billing-details">
+                        <div class="section-title">
+                            <h3 class="title">Địa Chỉ Nhận Hàng</h3>
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.FullName, new { @class = "input", placeholder = "Họ Và Tên" })
+                            @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "input", placeholder = "Số Điện Thoại" })
+                            @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.Address, new { @class = "input", placeholder = "Địa Chỉ" })
+                            @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <!-- /Billing Details -->
+                    <!-- Order notes -->
+                    <div class="order-notes">
+                        @Html.TextAreaFor(m => m.Notes, new { @class = "input", placeholder = "Ghi Chú" })
+                    </div>
+
+                    <!-- /Order notes -->
+                </div>
+                <!-- Order Details -->
+                <div class="col-md-5 order-details">
+                    <div class="section-title text-center">
+                        <h3 class="title">Đơn Hàng Của Bạn</h3>
+                    </div>
+                    <div class="order-summary">
+                        <div class="order-col">
+                            <div><strong>SẢN PHẨM</strong></div>
+                            <div><strong>TỔNG</strong></div>
+                        </div>
+                        <div class="order-products">
+                            @foreach (var cart in listShoppingCart)
+                            {
+                                <div class="order-col">
+                                    <div>@cart.Quantity<span>x</span> @cart.Name - @cart.Size</div>
+                                    <div>@String.Format("{0:0,0}", cart.intoMoney) ₫</div>
+                                </div>
+                            }
+                            @*<div class="order-col">
+                                    <div>2x Product Name Goes Here</div>
+                                    <div>$980.00</div>
+                                </div>*@
+                        </div>
+                        <div class="order-col">
+                            <div>Phí Vận Chuyển</div>
+                            <div><strong>MIỀN PHÍ</strong></div>
+                        </div>
+                        <div class="order-col">
+                            <div><strong>TỔNG</strong></div>
+                            <div><strong class="order-total">@String.Format("{0:0,0}", listShoppingCart.Sum(x => x.Quantity * x.Price)) ₫</strong></div>
+                        </div>
+                    </div>
+                    <div class="payment-method">
+                        <div class="input-radio" style="font-weight: 700; margin-bottom: 20px">
+                            PHƯƠNG THỨC THANH TOÁN
+                        </div>
+                        @foreach (var item in Model.Payments)
+                        {
+                            <div class="input-radio">
+
+                                <input type="radio" name="Payment" id="@item.ID" class="Payment" data-id="@item.ID" value="@item.ID">
+                                <label for="@item.ID">
+                                    <span></span>
+                                    @item.PaymentType
+                                </label>
+                                @*<div class="caption">
+                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                    </div>*@
+                            </div>
+                        }
+                        <span class="text-danger" id="Payment-error"></span>
+                    </div>
+                    <div class="input-checkbox">
+                        <input type="checkbox" id="terms" name="terms">
+                        <label for="terms">
+                            <span></span>
+                            Tôi đã đọc và chấp nhận các điều khoản & điều kiện
+                        </label>
+                    </div>
+                    <span class="text-danger" id="Terms-error"></span>
+
+                    <a href="#" class="primary-btn order-submit">Đặt Hàng</a>
+                </div>
+                <!-- /Order Details -->
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+        })
+        $(document).on('click', '.order-submit', function () {
+            var ID = $('input[type = "radio"]:checked').data("id");
+            if (ID == undefined) {
+                $('#Payment-error').html('Chọn phương thức thanh toán');
+                return;
+            }
+            else if (!$('#terms').is(':checked')) {
+                $('#Terms-error').html('Hãy đọc điều điều khoản của chúng tôi');
+                return;
+            }
+            else {
+                $(this).parents('form').submit();
+            }
+        })
+    </script>
+}

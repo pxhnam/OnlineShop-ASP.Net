@@ -1,0 +1,233 @@
+﻿@model OnlineShop.Models.Product
+@using OnlineShop.Models
+@{
+    ViewBag.Title = ViewBag.NameProduct;
+    DatabaseContext _Context = new DatabaseContext();
+    var user = Session["User"] as User;
+}
+
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <!-- Product main img -->
+            <div class="col-md-5 col-md-push-1">
+                <img src="~/Content/img/@Model.Picture" alt="" style="width: 450px; border-radius: 15px">
+            </div>
+            <!-- /Product main img -->
+            <!-- Product details -->
+            <div class="col-md-5 col-md-push-2" style="margin-top: 80px">
+                <div class="product-details">
+                    <h2 class="product-name">@Model.Name</h2>
+                    <div>
+                        @if (Model.SalePrice == Model.Cost)
+                        {
+                            <h3 class="product-price">@String.Format("{0:0,0}", Model.SalePrice) VNĐ</h3>
+                        }
+                        else
+                        {
+                            <h3 class="product-price">@String.Format("{0:0,0}", Model.SalePrice) VNĐ <del class="product-old-price">@String.Format("{0:0,0}", Model.Cost) VNĐ</del></h3>
+                        }
+                        @*<span class="product-available">In Stock</span>*@
+                    </div>
+                    <p>@Model.Description</p>
+
+                    <div class="product-options radio-tile-group">
+                        <label>Size: </label>
+                        @*<label>
+                                Size:&nbsp;
+                                <select class="input-select">
+                                    <option value="0">X</option>
+                                </select>
+                            </label>*@
+                        @foreach (var size in Model.InforProducts)
+                        {
+                            if (size.Quantity == 0) { continue; }
+                            <div class="input-container">
+                                <input type="radio" name="Size" data-id="@size.ID" />
+                                <div class="radio-tile">
+                                    <label>@size.Size.Name</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="add-to-cart">
+                        <div class="qty-label">
+                            Số Lượng:&nbsp;
+                            <div class="input-number">
+                                <input type="number" style="text-align:center" value="1" id="Quantity">
+                                <span class="qty-up">+</span>
+                                <span class="qty-down">-</span>
+                            </div>
+                            <span id="inStock">&emsp;Số Lượng Còn Lại: @Model.InforProducts.Sum(x => x.Quantity)</span>
+                        </div>
+                        @*<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>*@
+                    </div>
+
+                    <ul class="product-btns">
+                        @if (Session["User"] != null)
+                        {
+                            if (!_Context.Favorites.Any(x => x.IDProduct == Model.ID && x.UserID == user.ID))
+                            {
+                                <li><a href="#" id="btnAddFav" data-id="@Model.ID"><i class="fa-solid fa-heart"></i> <span>Thêm Vào Mục Yêu Thích</span></a></li>
+                            }
+                            else
+                            {
+                                <li><a href="#"><i class="fa-solid fa-heart"></i> <span>Sản Phẩm Yêu Thích</span></a></li>
+                            }
+                        }
+
+                    </ul>
+
+                    <ul class="product-links">
+                        <li>Thể Loại:</li>
+                        <li><a href="#">@Model.Category.Name</a></li>
+                        @*<li><a href="#">Accessories</a></li>*@
+                    </ul>
+
+                    @*<ul class="product-links">
+                            <li>Share:</li>
+                            <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                            <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                            <li><a href="#"><i class="fa fa-google-plus"></i></a></li>
+                            <li><a href="#"><i class="fa fa-envelope"></i></a></li>
+                        </ul>*@
+                    <div class="add-to-cart" style="margin-top: 30px; text-align:center;display:flex;justify-content:space-around">
+                        <button class="add-to-cart-btn" id="btnAddToCard"><i class="fa fa-shopping-cart"></i> Thêm Vào Giỏ Hàng</button>
+                        <button class="add-to-cart-btn" id="BuyNow"><i class="fa fa-credit-card-alt" aria-hidden="true"></i> Mua Ngay</button>
+                    </div>
+                </div>
+            </div>
+            <!-- /Product details -->
+            <!-- Product tab -->
+            <div class="col-md-12">
+                <div id="product-tab">
+                    <!-- product tab nav -->
+                    <ul class="tab-nav">
+                        <li><a>Mô Tả Sản Phẩm</a></li>
+
+                        @*<li class="active"><a data-toggle="tab" href="#tab1">Description</a></li>
+                            <li><a data-toggle="tab" href="#tab2">Details</a></li>
+                            <li><a data-toggle="tab" href="#tab3">Reviews (3)</a></li>*@
+                    </ul>
+                    <!-- /product tab nav -->
+                    <!-- product tab content -->
+                    <div class="tab-content">
+                        <!-- tab1  -->
+                        <div id="tab1" class="tab-pane fade in active">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p>@Model.Description</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /tab1  -->
+
+                    </div>
+                    <!-- /product tab content  -->
+                </div>
+            </div>
+            <!-- /product tab -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!--Toast-->
+<div class="notifications"></div>
+<!--Toast-->
+<link href="~/Asset/css/Toast.css" rel="stylesheet" />
+<script src="~/Asset/js/app.js"></script>
+@section Scripts {
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            AddToFavourites();
+            getInStock();
+        });
+        function getInStock() {
+            $('input[type = "radio"]').change(function () {
+                $.get("/ShoppingCart/getInStock", { ID: $(this).data('id') })
+                    .done(function (result) {
+                        $('#inStock').text(" Số Lượng Còn Lại: " + result);
+                    })
+                    .fail(function () {
+                        alert('false');
+                    })
+            })
+        }
+        
+        function AddToCard(href) {
+            var ID = $('input[type = "radio"]:checked').data("id");
+            var quantity = $('#Quantity').val();
+            if (quantity == 0) {
+                let type = 'info';
+                let icon = 'fa-solid fa-circle-info';
+                let title = 'Thông Báo';
+                let text = 'Hãy nhập số lượng phù hợp.';
+                createToast(type, icon, title, text);
+                return;
+            }
+            if (ID == undefined) {
+                let type = 'info';
+                let icon = 'fa-solid fa-circle-info';
+                let title = 'Thông Báo';
+                let text = 'Hãy chọn kích cỡ phù hợp.';
+                createToast(type, icon, title, text);
+            } else {
+                $.ajax({
+                    url: '/ShoppingCart/AddToCart',
+                    type: 'POST',
+                    data: { ID: ID, quantity: quantity },
+                    success: function (result) {
+                        if (result.success) {
+                            $('#TotalCart').html(result.total);
+                            let type = 'success';
+                            let icon = 'fa-solid fa-circle-check';
+                            let title = 'Thành Công';
+                            let text = 'Đã thêm sản phẩm vào giỏ hàng.';
+                            createToast(type, icon, title, text);
+                            window.location.href = href;
+                        } else {
+                            let type = 'warning';
+                            let icon = 'fa-solid fa-triangle-exclamation';
+                            let title = 'Cảnh Báo';
+                            let text = 'Kiểm tra lại số lượng nhập.';
+                            createToast(type, icon, title, text);
+                        }
+                    }
+                });
+            }
+        }
+        $('#btnAddToCard').click(function () {
+            AddToCard('#');
+        })
+        $('#BuyNow').click(function () {
+            AddToCard('/CheckOut');
+        })
+        function AddToFavourites() {
+            $(document).on("click", "#btnAddFav", function () {
+                var span = $(this).closest('li').find('span');
+                var ID = $(this).data("id");
+                $.ajax({
+                    url: '/Favourites/AddToFavourites',
+                    type: 'POST',
+                    data: { ID: $(this).data("id") },
+                    success: function (result) {
+                        if (result.success) {
+                            $('#totalFav').html(result.total);
+                            span.html('Sản Phẩm Yêu Thích');
+                            let type = 'success';
+                            let icon = 'fa-solid fa-circle-check';
+                            let title = 'Thành Công';
+                            let text = 'Đã thêm sản phẩm vào mục yêu thích';
+                            createToast(type, icon, title, text);
+                        } else { }
+                    }
+                });
+            })
+        }
+    </script>
+}

@@ -1,0 +1,159 @@
+﻿@model OnlineShop.Models.Order
+@{
+    ViewBag.Title = "Đơn Hàng Của Bạn";
+}
+<style>
+    .card {
+        border: 1px solid #ccc;
+        padding: 30px;
+    }
+
+    #body tr:last-child {
+        border-bottom: 1px solid #dedbdb;
+    }
+</style>
+<div class="section">
+    <div class="container mt-5 mb-5">
+
+        <div class="row d-flex justify-content-center" style="display:flex; justify-content:center">
+
+            <div class="col-md-8">
+
+                <div class="card">
+
+
+                    <div class="text-left logo p-2 px-5">
+
+                        @*<img src="https://i.imgur.com/2zDU056.png" width="50">*@
+                    </div>
+
+                    <div class="invoice p-5">
+
+                        <h5>Cảm ơn bạn đã đặt hàng!</h5>
+
+                        <span class="font-weight-bold d-block mt-4" style="font-weight: bold; display:block">Xin chào, @Model.InforCustomer.FullName</span>
+                        <span>Đơn đặt hàng của bạn đã được xác nhận và sẽ được giao trong thời gian sớm nhất!</span>
+
+                        <div class="payment border-top mt-3 mb-3 border-bottom table-responsive">
+
+                            <table class="table table-borderless">
+
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="py-2">
+                                                <span class="d-block text-muted" style="display:block">Mã Đơn Hàng</span>
+                                                <span>@Model.ID</span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="py-2">
+
+                                                <span class="d-block text-muted" style="display:block">Ngày Đặt</span>
+                                                <span>@Model.OrderDate.ToString("dd/MM/yyyy")</span>
+
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="py-2">
+
+                                                <span class="d-block text-muted" style="display:block">Thanh Toán</span>
+                                                <span>@Model.Payment.PaymentType</span>
+
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="py-2">
+
+                                                <span class="d-block text-muted" style="display:block">Địa Chỉ Nhận Hàng</span>
+                                                <span>@Model.InforCustomer.Address</span>
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
+
+                        <div class="border-bottom table-responsive">
+
+                            <table class="table table-borderless">
+                                <tbody id="body">
+                                    @foreach (var item in Model.OrderDetails)
+                                    {
+                                        <tr>
+                                            <td width="20%">
+
+                                                <img src="~/Content/img/@item.InforProduct.Product.Picture" width="90">
+
+                                            </td>
+
+                                            <td width="60%">
+                                                <span class="font-weight-bold">@item.InforProduct.Product.Name</span>
+                                                <div class="product-qty">
+                                                    <span class="d-block" style="display:block">Quantity: @item.Quantity</span>
+                                                    <span>Size: @item.InforProduct.Size.Name</span>
+
+                                                </div>
+                                            </td>
+                                            <td width="20%" style="justify-content:center">
+                                                <div class="text-right">
+                                                    <span class="font-weight-bold">@String.Format("{0:0,0}", item.Price) VNĐ</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+
+                            </table>
+                        </div>
+
+                        <div class="row d-flex justify-content-end" style="display:flex; justify-content:end">
+
+                            <div class="col-md-5">
+
+                                <table class="table table-borderless">
+
+                                    <tbody class="totals">
+
+                                        <tr class="border-top border-bottom">
+                                            <td>
+                                                <div class="text-left">
+
+                                                    <span class="font-weight-bold">Tổng</span>
+
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="text-right">
+                                                    <span class="font-weight-bold">@String.Format("{0:0,0}", Model.TotalPrice) VNĐ</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </div>
+
+                        <p>@*We will be sending shipping confirmation email when the item shipped successfully!*@</p>
+                        <p class="font-weight-bold mb-0">Cảm ơn đã chọn shop của chúng tôi!</p>
+                        <span>Lor Team</span>
+                    </div>
+                    @*<div class="d-flex justify-content-between footer p-3">
+
+                            <span>Need Help? visit our <a href="#"> help center</a></span>
+                            <span>12 June, 2020</span>
+                        </div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

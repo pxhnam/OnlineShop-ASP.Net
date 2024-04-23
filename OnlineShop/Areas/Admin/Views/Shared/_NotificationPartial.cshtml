@@ -1,0 +1,46 @@
+﻿
+<style>
+    .notification {
+        max-height: 395px;
+        overflow-y: scroll !important;
+    }
+
+        .notification::-webkit-scrollbar {
+            display: none;
+        }
+
+    .notification {
+        -ms-overflow-style: none; /* IE and Edge */
+        /*scrollbar-width: none;*/ /* Firefox */
+    }
+</style>
+<!-- Nav Item - Alerts -->
+<li class="nav-item dropdown no-arrow mx-1">
+    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-bell fa-fw"></i>
+        <!-- Counter - Alerts -->
+        <span class="badge badge-danger badge-counter">0</span>
+    </a>
+    <!-- Dropdown - Alerts -->
+    <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in notification"
+         aria-labelledby="alertsDropdown">
+        <h6 class="dropdown-header">
+            Thông Báo
+        </h6>
+        
+                <a class="dropdown-item d-flex align-items-center" href="#">
+                    <div class="mr-3">
+                        <div class="icon-circle bg-warning">
+                            <i class="fas fa-exclamation-triangle text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <!--December 2, 2019-->
+                        <div class="small text-gray-500">20/20/2023</div>
+                         vừa đặt đơn hàng mới
+                    </div>
+                </a>
+        @*<a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>*@
+    </div>
+</li>

@@ -1,0 +1,35 @@
+﻿@model OnlineShop.Models.User
+@{
+    ViewBag.Title = "Thông tin tài khoản";
+}
+<div class="form_box">
+    <div class="SignUp">
+        <h2 class="SignUp_heading">Thông Tin Tài Khoản</h2>
+        @using (Html.BeginForm("Edit", "Account", FormMethod.Post, new { @class = "SignIn_form" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.ID)
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="form_group">
+                @Html.EditorFor(m => m.Username, new { htmlAttributes = new { @class = "form_input", placeholder = "Username" } })
+                @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })
+            </div>
+            <div class="form_group">
+                @Html.EditorFor(m => m.FullName, new { htmlAttributes = new { @class = "form_input", placeholder = "Họ Tên" } })
+                @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger" })
+            </div>
+            <div class="form_group">
+                @Html.EditorFor(m => m.Gmail, new { htmlAttributes = new { @class = "form_input", placeholder = "Email" } })
+                @Html.ValidationMessageFor(m => m.Gmail, "", new { @class = "text-danger" })
+            </div>
+            <div class="form_group">
+                <input class="form_submit" type="submit" value="Lưu" />
+            </div>
+            <p class="back_home">@Html.ActionLink("Quay về trang chủ", "Index", "Home")</p>
+        }
+    </div>
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,304 @@
+﻿@model IEnumerable<OnlineShop.Models.Cart>
+@{
+    ViewBag.Title = "Giỏ Hàng";
+}
+<style>
+    body {
+        user-select: none;
+    }
+
+    .box-cart,
+    .box-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .btn-danger {
+        outline: none !important;
+    }
+
+    .box-header {
+        font-size: 18px;
+        text-transform: uppercase;
+        font-weight: 700
+    }
+
+    button {
+        border: none;
+        outline: none;
+        background-color: transparent;
+    }
+
+    .list-group-item button:hover {
+        color: #d10024;
+    }
+
+    .box-number button {
+        outline: none !important;
+        font-size: 15px;
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+    }
+
+        .box-number button:hover {
+            color: #d10024;
+        }
+
+        .box-number button:first-child {
+            border-left: 1px solid #ccc;
+        }
+
+        .box-number button:last-child {
+            border-right: 1px solid #ccc;
+        }
+
+    .box-number {
+        font-weight: 700;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    input[type="number"] {
+        text-align: center;
+        max-width: 50px;
+        border: none;
+        outline: none;
+        font-size: 15px;
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .list-group-item:first-child,
+    .list-group-item:last-child {
+        border-radius: 0;
+    }
+</style>
+<div class="section">
+    <div class="container">
+        <div class="row d-flex justify-content-center my-4">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <!-- header -->
+                        <div class="row box-header">
+                            <div class="col-lg-6 col-md-12 mb-4 mb-lg-0">Sản Phẩm</div>
+                            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">Số Lượng</div>
+                            <div class="col-lg-2">Giá</div>
+                            <div class="col-lg-1"></div>
+                        </div>
+                    </div>
+                    <!-- header -->
+                    <hr class="my-4" />
+                    @foreach (var item in Model)
+                    {
+                        <!-- Single item -->
+                        <div class="row box-cart" data-id="@item.ID">
+                            @*<input type="checkbox"/>*@
+                            <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
+                                <!-- Image -->
+                                <div class="bg-image hover-overlay hover-zoom ripple rounded" data-mdb-ripple-color="light">
+                                    <a href="~/Product/Details/@item.IDProduct">
+                                        <img src="~/Content/img/@item.Picture" style="width: 100px; border-radius: 10px" />
+                                    </a>
+                                    @*<a href="#!">
+                                            <div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"></div>
+                                        </a>*@
+                                </div>
+                                <!-- Image -->
+                            </div>
+                            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                                <!-- Data -->
+                                <p><strong>@item.Name</strong></p>
+                                <p>Size: @item.Size</p>
+                                <!-- Data -->
+                            </div>
+                            <!-- Quantity -->
+                            <div class="col-lg-3 d-flex mb-4 box-number">
+                                <button class="stepDown" onclick="this.parentNode.querySelector('input[type=number]').stepDown()">
+                                    -
+                                </button>
+
+                                <input id="Quantity" min="0" name="Quantity" value="@item.Quantity" type="number" />
+
+                                <button class="stepUp" onclick="this.parentNode.querySelector('input[type=number]').stepUp()">
+                                    +
+                                </button>
+                            </div>
+                            <!-- Quantity -->
+                            <div class="col-lg-2 col-md-6 mb-4 mb-lg-0" style="font-weight: 600">
+                                <!-- Price -->
+                                <p class="text-center" style="margin: 0">@String.Format("{0:0,0}", item.Price) VNĐ</p>
+                                <!-- Price -->
+                            </div>
+                            <div class="col-lg-1">
+                                <!-- Remove -->
+                                <button type="button" class="btn btn-danger btn-sm me-1 mb-2" data-id="@item.ID" id="btnRemove">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <!-- Remove -->
+                            </div>
+                        </div>
+                        <!-- Single item -->
+                        <hr class="my-4" />
+                    }
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header py-3" style="display:flex; justify-content:space-between">
+                        <h5 class="mb-0">Thông tin đơn hàng</h5>
+                        <h5 class="mb-0"><a href="~/Home/Index">Tiếp tục mua hàng <i class="fa-solid fa-arrow-right"></i></a></h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item border-0 px-0 mb-3" style="display:flex; justify-content:space-between">
+                                <strong>Tổng tiền: </strong>
+                                <span><strong class="total-price">@String.Format("{0:0,0}", ViewBag.Total) ₫</strong></span>
+                            </li>
+                            <li class="list-group-item border-0 px-0 mb-3" style="display:flex; justify-content:center; font-weight: 700">
+                                @*<button type="button" class="text-uppercase">THANH TOÁN</button>*@
+                                <a class="text-uppercase" id="payment" style="font-weight: 700">THANH TOÁN</a>
+                                <!--href="~/CheckOut"-->
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Toast-->
+<div class="notifications"></div>
+<!--Toast-->
+<link href="~/Asset/css/Toast.css" rel="stylesheet" />
+<script src="~/Asset/js/app.js"></script>
+@section scripts {
+    <script>
+        const formatter = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        });
+        $(document).ready(function () {
+            Remove();
+        })
+        function Remove() {
+            $(document).on('click', '#btnRemove', function () {
+                var parent = $(this).closest('.box-cart');
+                hr = parent.next();
+                $.ajax({
+                    url: '/ShoppingCart/Remove',
+                    type: 'POST',
+                    data: { ID: $(this).data('id') },
+                    success: function (result) {
+                        if (result.success) {
+                            parent.fadeOut(function () {
+                                $(this).remove();
+                            })
+                            hr.fadeOut(function () {
+                                $(this).remove();
+                            })
+                            if (result.totalCount == 0) {
+                                window.location.href = '/Home';
+                            }
+                            $('#TotalCart').html(result.totalCount);
+                            $('.total-price').html(formatter.format(result.totalPrice));
+                            let type = 'success';
+                            let icon = 'fa-solid fa-circle-check';
+                            let title = 'Thành Công';
+                            let text = result.msg;
+                            createToast(type, icon, title, text);
+                        } else {
+                            let type = 'error';
+                            let icon = 'fa-solid fa-circle-exclamation';
+                            let title = 'Lỗi';
+                            let text = result.msg;
+                            createToast(type, icon, title, text);
+                        }
+                    }
+                })
+            })
+        }
+
+        function updateQuantity(ID, num) {
+            if (num < 1) {
+                num = 1;
+                let type = 'info';
+                let icon = 'fa-solid fa-circle-info';
+                let title = 'Thông Báo';
+                let text = 'Hãy nhập số lượng phù hợp.';
+                createToast(type, icon, title, text);
+            }
+            $.ajax({
+                url: '/ShoppingCart/updateQuantity',
+                type: 'POST',
+                data: { ID: ID, num: num }
+            })
+                .done(function (result) {
+                    $('#TotalCart').html(result.totalCount);
+                    $('.total-price').html(formatter.format(result.totalPrice));
+                })
+                .fail(function () { })
+        }
+
+        $(document).on('keyup', "input[type='number']", function () {
+            var parent = $(this).closest('.box-cart');
+            var ID = parent.data('id');
+            var num = parent.find('input').val();
+            updateQuantity(ID, num);
+        })
+        $(document).on('click', '.stepDown', function () {
+            var parent = $(this).closest('.box-cart');
+            var ID = parent.data('id');
+            var num = parent.find('input').val();
+            updateQuantity(ID, num);
+        })
+        $(document).on('click', '.stepUp', function () {
+            var parent = $(this).closest('.box-cart');
+            var ID = parent.data('id');
+            var num = parent.find('input').val();
+            updateQuantity(ID, num);
+        })
+
+        /*$("input[type='number']").map(function () {
+            var parent = $(this).closest('.box-cart');
+            var ID = parent.data('id');
+            var num = $(this).val();
+            console.log(ID + "-" + $(this).val())
+            if (ID > 10) {
+                break;
+            }
+        })*/
+
+        $(document).on('click', '#payment', function () {
+            $.ajax({
+                url: '/ShoppingCart/CheckVaild',
+                type: 'GET',
+                //method: 'GET',
+                success: function (result) {
+                    if (result.success) {
+                        window.location.href = '/CheckOut';
+                    } else {
+                        let type = 'info';
+                        let icon = 'fa-solid fa-circle-info';
+                        let title = 'Thông Báo';
+                        let text = 'Kiểm tra lại số lượng.';
+                        createToast(type, icon, title, text);
+                    }
+                },
+                error: function () {
+                    console.log('error');
+                }
+            })
+        })
+    </script>
+}

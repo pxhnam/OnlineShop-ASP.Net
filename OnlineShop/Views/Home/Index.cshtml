@@ -1,0 +1,222 @@
+﻿@using PagedList
+@using PagedList.Mvc
+@using OnlineShop.Models
+@model PagedList.IPagedList<OnlineShop.Models.Product>
+@{
+    ViewBag.Title = "Trang Chủ";
+    DatabaseContext _Context = new DatabaseContext();
+    var user = Session["User"] as User;
+}
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- store -->
+        <div id="store" class="col-md-12">
+            <div class="section-title text-center">
+                <h3 class="title">Danh Sách Sản Phẩm</h3>
+            </div>
+            <!-- store products -->
+            <div class="row">
+                @foreach (var item in Model)
+                {
+                    if (item.Status == false) { continue; }
+                    <!-- product -->
+                    <div class="col-md-4 col-xs-6">
+                        <div class="product">
+                            <div class="product-img">
+                                <img src="~/Content/img/@item.Picture" alt="" style="height: 420px">
+
+                                <div class="product-label">
+                                    @if (item.Cost != item.SalePrice)
+                                    {
+                                        var discount = item.Cost - item.SalePrice;
+                                        var precent = discount / item.Cost * 100;
+                                        <span class="sale">-@Math.Round(precent)%</span>
+                                    }
+                                    @if (DateTime.Now.Day - item.DateCreated.Day < 7)
+                                    {<span class="new">NEW</span>}
+                                </div>
+                            </div>
+                            <div class="product-body">
+                                <p class="product-category">@item.Category.Name</p>
+                                <h3 class="product-name"><a href="~/Product/Details/@item.ID">@item.Name</a></h3>
+                                @if (item.Cost == item.SalePrice)
+                                {
+                                    <h4 class="product-price">@String.Format("{0:0,0}", item.SalePrice) VNĐ</h4>
+                                }
+                                else
+                                {
+                                    <h4 class="product-price">@String.Format("{0:0,0}", item.SalePrice) VNĐ <del class="product-old-price">@String.Format("{0:0,0}", item.Cost) VNĐ</del></h4>
+                                }
+
+
+                                <div class="product-size radio-tile-group">
+                                    @foreach (var size in item.InforProducts)
+                                    {
+                                        if (size.Quantity == 0) { continue; }
+                                        <div class="input-container" id="Size">
+                                            <input type="radio" name="radio" data-id="@size.ID" />
+                                            <div class="radio-tile">
+                                                <label>@size.Size.Name</label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+
+                                <div class="product-btns">
+                                    @if (Session["User"] != null)
+                                    {
+                                        if (_Context.Favorites.Any(x => x.IDProduct == item.ID && x.UserID == user.ID))
+                                        {
+                                            <button class="add-to-wishlist">
+                                                <i class="fa-solid fa-heart"></i><span class="tooltipp">Đã Yêu Thích</span>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="add-to-wishlist" id="btnAddFav" data-id="@item.ID">
+                                                <i class="fa-solid fa-heart"></i><span class="tooltipp tooltippFav_@item.ID">Yêu Thích</span>
+                                            </button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <button class="add-to-wishlist">
+                                            <i class="fa-solid fa-heart"></i><span class="tooltipp">Yêu Thích</span>
+                                        </button>
+                                    }
+                                    <button class="add-to-compare btnAddToCard">
+                                        <i class="fa fa-shopping-cart"></i>
+                                        <span class="tooltipp">Thêm Giỏ Hàng</span>
+                                    </button>
+                                    <button class="quick-view" data-id="@item.ID"><i class="fa fa-eye"></i><span class="tooltipp">Chi Tiết</span></button>
+                                </div>
+                            </div>
+                            <div class="add-to-cart">
+                                <button class="add-to-cart-btn BuyNow"><i class="fa fa-shopping-cart"></i> MUA NGAY</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /product -->
+                }
+            </div>
+            <!-- /store products -->
+            <!-- store bottom filter -->
+            <div class="store-filter clearfix" style="text-align:center">
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { page, @search = ViewBag.search, @category = ViewBag.categoryID }))
+            </div>
+            <!-- /store bottom filter -->
+        </div>
+        <!-- /store -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+<!--Toast-->
+<div class="notifications"></div>
+<!--Toast-->
+<link href="~/Asset/css/Toast.css" rel="stylesheet" />
+<script src="~/Asset/js/app.js"></script>
+@section Scripts {
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            AddToFavourites();
+            AddToCard();
+        });
+
+        $(document).on('click', '.quick-view', function () {
+            var ID = $(this).data('id');
+            window.location.href = '/Product/Details/' + ID;
+        })
+
+        function AddToFavourites() {
+            $(document).on("click", "#btnAddFav", function () {
+                var ID = $(this).data("id");
+                $.ajax({
+                    url: '/Favourites/AddToFavourites',
+                    type: 'POST',
+                    data: { ID: $(this).data("id") },
+                    success: function (result) {
+                        if (result.success) {
+                            $('#totalFav').html(result.total);
+                            $('.tooltippFav_' + ID).text("Đã Yêu Thích");
+                            let type = 'success';
+                            let icon = 'fa-solid fa-circle-check';
+                            let title = 'Thành Công';
+                            let text = 'Đã thêm sản phẩm vào mục yêu thích';
+                            createToast(type, icon, title, text);
+                        } else { }
+                    }
+                });
+            })
+        }
+        function AddToCard() {
+            $('.btnAddToCard').click(function () {
+                var ID = $(this).closest('.product').find('input[type = "radio"]:checked').data('id');
+                if (ID == undefined) {
+                    let type = 'info';
+                    let icon = 'fa-solid fa-circle-info';
+                    let title = 'Thông Báo';
+                    let text = 'Hãy chọn kích cỡ phù hợp.';
+                    createToast(type, icon, title, text);
+                } else {
+                    $.ajax({
+                        url: '/ShoppingCart/AddToCart',
+                        type: 'POST',
+                        data: { ID: ID, quantity: 1 },
+                        success: function (result) {
+                            if (result.success) {
+                                $('#TotalCart').html(result.total);
+                                let type = 'success';
+                                let icon = 'fa-solid fa-circle-check';
+                                let title = 'Thành Công';
+                                let text = 'Đã thêm sản phẩm vào giỏ hàng.';
+                                createToast(type, icon, title, text);
+                            }
+                        }
+                    });
+                }
+            })
+        }
+        $(document).on('click', '.BuyNow', function () {
+            var ID = $(this).closest('.product').find('input[type = "radio"]:checked').data('id');
+            if (ID == undefined) {
+                let type = 'info';
+                let icon = 'fa-solid fa-circle-info';
+                let title = 'Thông Báo';
+                let text = 'Hãy chọn kích cỡ phù hợp.';
+                createToast(type, icon, title, text);
+            } else {
+                $.ajax({
+                    url: '/ShoppingCart/AddToCart',
+                    type: 'POST',
+                    data: { ID: ID, quantity: 1 },
+                    success: function (result) {
+                        if (result.success) {
+                            window.location.href = '/CheckOut';
+                            $('#TotalCart').html(result.total);
+                        } else { }
+                    }
+                });
+            }
+        })
+                //$(document).on('click', '.search-btn', function () {
+                //    var text = $('.input-search').val();
+                //    var id = $(".input-select option:selected").val();
+                //    console.log(text + '-' + id);
+                //    $.ajax({
+                //        url: '/Home/Index',
+                //        type: 'GET',
+                //        data: ''
+                //    })
+                //})
+                    //$('.pagination-container').on('click', 'li', function (e) {
+                    //    e.preventDefault();
+                    //    $('.pagination-container li').removeClass('active');
+                    //    $(this).addClass('active');
+                    //})
+    </script>
+}

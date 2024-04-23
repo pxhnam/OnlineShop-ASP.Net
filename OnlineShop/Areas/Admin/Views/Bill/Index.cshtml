@@ -1,0 +1,221 @@
+﻿@using PagedList
+@using PagedList.Mvc
+@model PagedList.IPagedList<OnlineShop.Models.Order>
+@{
+    ViewBag.Title = "Hóa Đơn";
+    var i = 1;
+}
+
+<!-- Page Heading -->
+@*<h1 class="h3 mb-2 text-gray-800">Danh Sách Sản Phẩm</h1>*@
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        @*<h6 class="m-0 font-weight-bold text-primary">@Html.ActionLink("Thêm mới", "Create", "Product")</h6>*@
+    </div>
+    <div class="card-body">
+        <!-- Search -->
+        @*<div class="row">
+                <div class="col-sm-12" style="display:flex; justify-content:center; margin-bottom: 20px">
+                    <input type="text" id="Search" class="form-control form-control-sm" placeholder="Nhập từ khóa cần tìm kiếm" style="width: 250px; text-align:center">
+                </div>
+            </div>*@
+        <div style="margin-bottom: 20px; text-align:center">
+            <!--d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search-->
+            <form class="d-sm-inline-block">
+                <div class="input-group">
+                    <input type="text" class="form-control bg-light border-0 small" placeholder="Nhập từ khóa cần tìm kiếm..."
+                           aria-label="Search" aria-describedby="basic-addon2" style="width: 250px;">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button">
+                            <i class="fas fa-search fa-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /Search -->
+        <div class="table-responsive">
+            <table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                <thead>
+                    <tr role="row">
+                        <th>STT</th>
+                        <th>Họ Và Tên</th>
+                        <th>Ngày Đặt</th>
+                        <th>Tổng Giá</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="odd Search" data-id="@item.ID">
+                            <td>@i</td>
+                            <td class="fullname">@item.InforCustomer.FullName</td>
+                            <td>@item.OrderDate.ToString("dd/MM/yyyy")</td>
+                            <td>@String.Format("{0:0,0}", item.TotalPrice) VNĐ</td>
+                            <td>
+                                <button class="btn btn-info" id="btnDetails" data-toggle="modal" data-target="#exampleModal"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-danger" id="btnDelete" data-toggle="modal" data-target="#my-modal"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                        { i++; }
+                    }
+                </tbody>
+            </table>
+            <div class="form_page" style="display:flex; justify-content:center">
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { page, @class = "page_item" }))
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Alter Delete -->
+<div id="my-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0">
+            <div class="modal-body p-0">
+                <div class="card border-0 p-sm-3 p-2 justify-content-center">
+                    <div class="card-header pb-0 bg-white border-0 ">
+                        <div class="row"><div class="col ml-auto"><button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div> </div>
+                        <p class="font-weight-bold mb-2"> Thông Báo !</p><p class="text-muted"></p>
+                    </div>
+                    <div class="card-body px-sm-4 mb-2 pt-1 pb-0">
+                        <div class="row justify-content-end no-gutters">
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-light text-muted" data-dismiss="modal">Hủy</button>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" id="btnSubmit" class="btn btn-danger px-4" data-dismiss="modal" style="margin-left:5px">Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Alter Delete -->
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                @*<button type="button" class="" data-dismiss="modal" aria-label="Close" style="border:none; background-color: transparent; outline:none; left: 0"><i class="fas fa-times"></i></button>*@
+            </div>
+            <div class="modal-body text-start text-black p-4">
+                <h5 class="modal-title text-uppercase mb-5" id="exampleModalLabel" style="text-align:center;">Chi Tiết Đơn Hàng</h5>
+                <h4 class="mb-5" style="color: #35558a; text-align:center" id="nameCustomer"></h4>
+                <p class="mb-0" style="color: #35558a;">Tóm tắt thanh toán</p>
+                <hr class="mt-2 mb-4"
+                    style="height: 0; background-color: transparent; opacity: .75; border-top: 2px dashed #9e9e9e;">
+
+
+                <div id="summary">
+
+                    <div class="d-flex justify-content-between">
+                        <p class="fw-bold mb-0">Ether Chair(Qty:1)</p>
+                        <p class="text-muted mb-0">$1750.00</p>
+                    </div>
+                </div>
+
+                @*<div class="d-flex justify-content-between">
+                            <p class="small mb-0">Shipping</p>
+                            <p class="small mb-0">Free</p>
+                        </div>
+
+                    <div class="d-flex justify-content-between pb-1">
+                        <p class="small">Tax</p>
+                        <p class="small">$200.00</p>
+                    </div>*@
+
+                <div class="d-flex justify-content-between" style="margin-top: 20px">
+                    <p class="fw-bold">Tổng</p>
+                    <p class="fw-bold" style="color: #35558a;" id="totalPrice"></p>
+                </div>
+
+            </div>
+            <div class="modal-footer d-flex justify-content-center border-top-0 py-4">
+                <button type="button" class="btn btn-dark btn-lg mb-1" data-dismiss="modal">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Modal -->
+<link href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/toasty.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/toasty.js"></script>
+@section scripts {
+    <script>
+        const formatter = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        });
+        var options = {
+            autoClose: true,
+            progressBar: true,
+            enableSounds: true,
+        };
+        var toast = new Toasty(options);
+        toast.configure(options);
+        $(document).ready(function () {
+            RemoveBill();
+            Details();
+        });
+
+        function RemoveBill() {
+            var ID, row, name;
+            $(document).on("click", "#btnDelete", function () {
+                row = $(this).closest('tr');
+                ID = row.data("id");
+                name = row.find('.fullname').text();
+                document.querySelector('.text-muted').innerHTML = "Bạn có chắc chắn muốn xóa hóa đơn của " + name + " ?";
+            })
+            $(document).on("click", "#btnSubmit", function () {
+
+                $.ajax({
+                    url: '/Admin/Bill/Delete',
+                    type: 'POST',
+                    data: { ID: ID },
+                    success: function (result) {
+                        if (result.success) {
+                            row.remove();
+                            toast.success("Xóa hóa đơn thành công");
+                        } else {
+                            toast.error("Xóa hóa đơn thất bại!");
+                        }
+                    }
+                });
+            })
+        }
+
+        function Details() {
+            $(document).on('click', '#btnDetails', function () {
+                var ID = $(this).closest('tr').data('id');
+                console.log('click' + ID);
+                $.ajax({
+                    url: '/Admin/Bill/Details',
+                    type: 'GET',
+                    contentType: 'application/json',
+                    data: { ID: ID },
+                    success: function (result) {
+                        if (result.success) {
+                            $('#summary').empty();
+                            $('#nameCustomer').html(result.nameCustomer);
+                            $('#totalPrice').html(formatter.format(result.total));
+                            $.each(result.get, function (index, item) {
+                                row =
+                                    "<div class='d-flex justify-content-between'>" +
+                                    "<p class='fw-bold mb-0'>" + item.name + " " + item.size + " (SL: " + item.quantity + ")" + "</p>" +
+                                    "<p class='text-muted mb-0'>" + formatter.format(item.price) + "</p></div>";
+                                $('#summary').append(row);
+                            })
+                        }
+                    }
+                })
+            })
+        }
+    </script>
+}

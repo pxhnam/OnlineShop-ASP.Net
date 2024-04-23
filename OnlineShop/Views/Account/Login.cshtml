@@ -1,0 +1,37 @@
+﻿@using OnlineShop.Models
+@model OnlineShop.Models.User
+@{
+    ViewBag.Title = "Đăng Nhập";
+}
+<div class="form_box">
+    <div class="SignIn">
+        <h2 class="SignIn_heading">Đăng Nhập</h2>
+        @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "SignIn_form", role = "form" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="form_group">
+                @Html.TextBoxFor(m => m.Username, new { @class = "form_input", placeholder = "Username" })
+                @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })
+            </div>
+            <div class="form_group">
+                @Html.PasswordFor(m => m.Password, new { @class = "form_input", placeholder = "Password" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+            </div>
+            <div class="link_register">
+                <p>Bạn chưa có tài khoản?   @Html.ActionLink("Đăng Ký", "Register", "Account")</p>
+            </div>
+            <div class="form_group">
+                <button class="form_submit" type="submit">Đăng Nhập</button>
+            </div>
+            <p class="back_home">@Html.ActionLink("← Quay về trang chủ", "Index", "Home")</p>
+
+        }
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,27 @@
+﻿@if (Session["User"] == null)
+{
+    <li><a href="~/Account/Login"><i class="fa-solid fa-user"></i> Đăng Nhập</a></li>
+}
+else
+{
+    <li class="dropdown">
+        @Html.Action("GetUser", "Home")
+        <ul class="dropdown-menu">
+            @if (Session["Admin"] != null)
+            {
+                <li class="dropdown-item">
+                    <a href="~/Admin/Home"><i class="fa-solid fa-user-tie"></i> Trang Quản Lý</a>
+                </li>
+            }
+            <li class="dropdown-item">
+                <a href="#"><i class="fa-solid fa-truck-fast"></i> Đơn Hàng</a>
+            </li>
+            <li class="dropdown-item">
+                <a href="~/Account/Edit"><i class="fa fa-cog" aria-hidden="true"></i> Cài Đặt</a>
+            </li>
+            <li class="dropdown-item">
+                <a href="~/Account/Logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Đăng Xuất</a>
+            </li>
+        </ul>
+    </li>
+}

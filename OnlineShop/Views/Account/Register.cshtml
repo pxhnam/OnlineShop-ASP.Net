@@ -1,0 +1,39 @@
+﻿@using OnlineShop.Models
+@model OnlineShop.Models.User
+@{
+    ViewBag.Title = "Đăng Ký";
+}
+<div class="form_box">
+    <div class="SignUp">
+        <h2 class="SignUp_heading">Đăng Ký</h2>
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "SignIn_form" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="form_group">
+                @Html.TextBoxFor(m => m.Username, new { @class = "form_input", placeholder = "Username" })
+                @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })
+            </div>
+            <div class="form_group">
+                @Html.TextBoxFor(m => m.FullName, new { @class = "form_input", placeholder = "Họ Tên" })
+                @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger" })
+            </div>
+            <div class="form_group">
+                @Html.TextBoxFor(m => m.Gmail, new { @class = "form_input", placeholder = "Email" })
+                @Html.ValidationMessageFor(m => m.Gmail, "", new { @class = "text-danger" })
+            </div>
+            <div class="form_group">
+                @Html.PasswordFor(m => m.Password, new { @class = "form_input", placeholder = "Password" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+            </div>
+            <div class="form_group">
+                <button class="form_submit" type="submit">Đăng Ký</button>
+            </div>
+            <p class="back_home">@Html.ActionLink("← Quay lại đăng nhập", "Login", "Account")</p>
+        }
+    </div>
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,157 @@
+﻿@using PagedList
+@using PagedList.Mvc
+@model PagedList.IPagedList<OnlineShop.Models.InforProduct>
+@{
+    ViewBag.Title = "Nhập Hàng";
+}
+
+<!-- Page Heading -->
+@*<h1 class="h3 mb-2 text-gray-800">Danh Sách Sản Phẩm</h1>*@
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">@*@Html.ActionLink("Nhập", "Create", "Import")*@</h6>
+    </div>
+    <div class="card-body">
+        <!-- Search -->
+        <div style="margin-bottom: 20px; text-align:center">
+            <form class="d-sm-inline-block">
+                <div class="input-group">
+                    <input type="text" class="form-control bg-light border-0 small" placeholder="Nhập từ khóa cần tìm kiếm..."
+                           aria-label="Search" aria-describedby="basic-addon2" style="width: 250px;">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button">
+                            <i class="fas fa-search fa-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /Search -->
+        <div class="table-responsive">
+            <table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                <thead>
+                    <tr role="row">
+                        <th>Tên</th>
+                        <th>Hình Ảnh</th>
+                        <th>Size</th>
+                        <th>Số Lượng</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="odd Search" id="item_@item.ID">
+                            <td id="nameItem_@item.ID">@item.Product.Name</td>
+                            <td style="text-align:center"><img src="~/Content/img/@item.Product.Picture" style="width:100px; border-radius: 5px" /></td>
+                            <td id="sizeItem_@item.ID">@item.Size.Name</td>
+                            <td id="numItem_@item.ID">@item.Quantity</td>
+                            <td>
+                                <button type="button" class="btn btn-info" id="btnEdit" data-id="@item.ID" data-toggle="modal" data-target="#exampleModal"><i class="fas fa-pen"></i></button>
+                                @*<button class="btn btn-danger" id="btnDelete" data-id="@item.ID" data-toggle="modal" data-target="#my-modal"><i class="fas fa-trash-alt"></i></button>*@
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="form_page" style="display:flex; justify-content:center">
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { page, @class = "page_item" }))
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <!-- Input Number-->
+                <span id="text-content" class="text-danger"></span>
+                <div class="box-number">
+                    <input type="number" min="0" value="0" id="Quantity" />
+                </div>
+                <!-- /Input Number-->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="btnSave" data-dismiss="modal">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Modal -->
+<!-- Toast -->
+<!-- /Toast -->
+<link href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/toasty.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/toasty.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+@section Scripts {
+    <script type="text/javascript">
+        var options = {
+            autoClose: true,
+            progressBar: true,
+            enableSounds: true,
+            //sounds: {
+            //    info: "https://res.cloudinary.com/dxfq3iotg/video/upload/v1557233294/info.mp3",
+            //    // path to sound for successfull message:
+            //    success: "https://res.cloudinary.com/dxfq3iotg/video/upload/v1557233524/success.mp3",
+            //    // path to sound for warn message:
+            //    warning: "https://res.cloudinary.com/dxfq3iotg/video/upload/v1557233563/warning.mp3",
+            //    // path to sound for error message:
+            //    error: "https://res.cloudinary.com/dxfq3iotg/video/upload/v1557233574/error.mp3",
+            //},
+        };
+        var toast = new Toasty(options);
+        toast.configure(options);
+        //        $(function() {
+        //    $('input[type="number"]').niceNumber();
+        //});
+        $(document).ready(function () {
+            $('input[type="number"]').niceNumber();
+            EditNumber();
+        });
+
+        function EditNumber() {
+            var ID;
+            $(document).on("click", "#btnEdit", function () {
+                ID = $(this).data("id");
+                var name = $('#nameItem_' + ID).text();
+                var size = $('#sizeItem_' + ID).text();
+                //document.querySelector('.modal-title').innerHTML = name + " " + size;
+                $('.modal-title').text(name + " " + size);
+                $.get("/Admin/Import/Details", { ID: ID })
+                    .done(function (result) {
+                        $('#Quantity').val(result);
+                    })
+                    .fail(function () { })
+            })
+            $(document).on("click", "#btnSave", function () {
+                var num = document.querySelector('input[type="number"]').value;
+                if (num >= 0) {
+                    $.ajax({
+                        url: '/Admin/Import/Edit',
+                        type: 'POST',
+                        data: { ID: ID, num: num },
+                        success: function (result) {
+                            if (result.success) {
+                                $('#numItem_' + ID).html(num);
+                                toast.success("Cập nhật thành công!");
+                            }
+                        }
+                    })
+                } else {
+                    toast.error("Cập nhật thất bại!");
+                }
+            })
+        }
+    </script>
+}

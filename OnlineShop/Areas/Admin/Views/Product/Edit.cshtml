@@ -1,0 +1,109 @@
+﻿@model OnlineShop.Models.Product
+@{
+    ViewBag.Title = "Thông Tin Sản Phẩm";
+}
+
+@using (Html.BeginForm("Edit", "Product", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <!-- Page Heading -->
+    @*<h1 class="h3 mb-2 text-gray-800">Thêm Sản Phẩm</h1>*@
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="display:flex; align-items:center; justify-content:space-between">
+            <h6 class="m-0 font-weight-bold text-primary" style="user-select:none"><a href="~/Admin/Product/Index">← Quay lại</a></h6>
+            <button type="submit" class="btn btn-primary">Lưu</button>
+
+        </div>
+        <div class="card-body">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <!-- Search -->
+            <div class="row">
+                <div class="col-md-4 box-upload">
+                    <label>
+                        <img src="~/Content/img/@Model.Picture" style="height: 320px; padding: 5px 0; border-radius: 15px;" id="preview" />
+                        <label class="btnChoose">
+                            Tải Lên
+                            <input type="file" name="Picture" class="inputfile" id="images" accept=".png, .jpg, .jpeg" onchange="showImage(this, document.getElementById('preview'))">
+                        </label>
+                    </label>
+                </div>
+                <div class="col-md-8">
+                    <div class="form-group" style="display: flex; justify-content:center">
+                        <div class="col-sm-4">
+                            <label>Tên Sản Phẩm: </label>
+                            @Html.TextBoxFor(m => m.Name, new { @class = "form-control form-control-sm", style = "width: 250px; padding: 18px 5px;" })
+                            @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger", style = "display: block; margin: 5px auto;" })
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Ngày Tạo: </label>
+                            <input readonly name="DateCreated" value="@DateTime.Now.ToString("dd/MM/yyyy HH:ss")" class="form-control form-control-sm" style="width: 250px; padding: 18px 5px;" />
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: flex; justify-content:center">
+                        <div class="col-sm-4">
+                            <label>Giá Nhập: </label>
+                            @Html.TextBoxFor(m => m.Cost, new { @class = "form-control form-control-sm", style = "width: 250px; padding: 18px 5px;" })
+                            @Html.ValidationMessageFor(m => m.Cost, "", new { @class = "text-danger", style = "display: block; margin: 5px auto;" })
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Giá Bán: </label>
+                            @Html.TextBoxFor(m => m.SalePrice, new { @class = "form-control form-control-sm", style = "width: 250px; padding: 18px 5px;" })
+                            @Html.ValidationMessageFor(m => m.SalePrice, "", new { @class = "text-danger", style = "display: block; margin: 5px auto;" })
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: flex; justify-content:center">
+                        <div class="col-sm-4">
+                            <label>Thể Loại: </label>
+                            @Html.DropDownList("CategoryID", null, htmlAttributes: new { @class = "form-control", style = "width: 250px" })
+                            @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="checkbox">
+                                <label>Trạng Thái: </label>
+                                <select name="Status" id="Status" class="form-control" style="width: 250px">
+                                    @if (Model.Status == false)
+                                    {
+                                        <option selected value="false">Tạm Ẩn</option>
+                                        <option value="true">Hiển Thị</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="false">Tạm Ẩn</option>
+                                        <option selected value="true">Hiển Thị</option>
+                                    }
+                                </select>
+
+                                @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: flex; justify-content:center">
+                        <div class="col-sm-4">
+                            <label>Mô Tả Sản Phẩm: </label>
+                            @Html.TextAreaFor(m => m.Description, new { @class = "form-control form-control-sm", style = "min-height: 80px" })
+                            @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger", style = "display: block; margin: 5px auto;" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /Search -->
+        </div>
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+        function showImage(upload, preview) {
+            if (upload.files && upload.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $(preview).attr('src', e.target.result);
+                }
+                reader.readAsDataURL(upload.files[0]);
+            }
+        }
+    </script>
+}

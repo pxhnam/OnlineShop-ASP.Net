@@ -1,0 +1,210 @@
+﻿@using PagedList
+@using PagedList.Mvc
+@model PagedList.IPagedList<OnlineShop.Models.Product>
+@{
+    ViewBag.Title = "Danh Sách Sản Phẩm";
+}
+<!-- Page Heading -->
+@*<h1 class="h3 mb-2 text-gray-800">Danh Sách Sản Phẩm</h1>*@
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">@Html.ActionLink("Thêm mới", "Create", "Product")</h6>
+    </div>
+    <div class="card-body">
+        <!-- Search -->
+        <div class="row">
+            <div class="col-sm-12" style="display:flex; justify-content:center; margin-bottom: 20px">
+                <input type="text" id="Search" class="form-control form-control-sm" placeholder="Nhập từ khóa cần tìm kiếm" style="width: 250px; text-align:center">
+            </div>
+        </div>
+
+        <!-- /Search -->
+        <div class="table-responsive">
+            <table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                <thead>
+                    <tr role="row">
+                        <th>Tên</th>
+                        <th>Hình Ảnh</th>
+                        <th>Giá Nhập</th>
+                        <th>Giá Bán</th>
+                        <th>Số Lượng</th>
+                        <th>Thể Loại</th>
+                        <th>Trạng Thái</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody id="tblProduct">
+                    @foreach (var item in Model)
+                    {
+                        <tr class="odd Search" id="item_@item.ID">
+                            <td id="nameItem_@item.ID">@item.Name</td>
+                            <td style="text-align:center"><img src="~/Content/img/@item.Picture" style="width:100px; border-radius: 5px" /></td>
+                            <td>@String.Format("{0:0,0}", item.Cost) VNĐ</td>
+                            <td>@String.Format("{0:0,0}", item.SalePrice) VNĐ</td>
+
+                            <td>
+                                @foreach (var size in item.InforProducts)
+                                {
+                                    if (size.Quantity == 0) { continue; }
+                                    <span class="box-size">@size.Size.Name</span>
+                                }
+                            </td>
+                            <td>@item.InforProducts.Sum(x => x.Quantity)</td>
+                            <td>@item.DateCreated.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Category.Name</td>
+                            @if (item.Status == true)
+                            {
+                                <td>Đang bán</td>
+                            }
+                            else
+                            {
+                                <td>Ngừng bán</td>
+                            }
+                            <td>
+                                <a href="~/Admin/Product/Edit/@item.ID" class="btn btn-info"><i class="fas fa-pen"></i></a>
+                                <button class="btn btn-danger" id="btnDelete" data-id="@item.ID" data-toggle="modal" data-target="#my-modal"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="form_page" style="display:flex; justify-content:center">
+                @*@Html.PagedListPager(Model, page => Url.Action("Index", new { page, @class = "page_item" }))*@
+                <div class="pagination-container">
+                    <ul class="pagination">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alter Delete -->
+<div id="my-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0">
+            <div class="modal-body p-0">
+                <div class="card border-0 p-sm-3 p-2 justify-content-center">
+                    <div class="card-header pb-0 bg-white border-0 ">
+                        <div class="row"><div class="col ml-auto"><button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div> </div>
+                        <p class="font-weight-bold mb-2"> Thông Báo !</p><p class="text-muted"></p>
+                    </div>
+                    <div class="card-body px-sm-4 mb-2 pt-1 pb-0">
+                        <div class="row justify-content-end no-gutters">
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-light text-muted" data-dismiss="modal">Hủy</button>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" id="btnSubmit" class="btn btn-danger px-4" data-dismiss="modal" style="margin-left:5px">Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /Alter Delete -->
+<link href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/toasty.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/toasty.js"></script>
+@section scripts {
+    <script type="text/javascript">
+        var options = {
+            autoClose: true,
+            progressBar: true,
+            enableSounds: true,
+        };
+        var keySearch = '';
+        var page = 1;
+        var toast = new Toasty(options);
+        toast.configure(options);
+        $(document).ready(function () {
+            loadData(keySearch, page);
+            DeleteProduct();
+        });
+        $(document).on('keyup', '#Search', function () {
+            keySearch = $(this).val();
+            loadData(keySearch, page);
+        })
+        function loadData(keySearch, page) {
+            $.ajax({
+                url: '/Admin/Product/listProduct',
+                type: 'GET',
+                data: { keySearch: keySearch, page: page },
+                contentType: 'application/json',
+                success: function (data) {
+                    if (data.success) {
+                        $('#tblProduct').empty();
+                        $.each(data.listProduct, function (index, item) {
+                            var status = '';
+                            if (item.Status) {
+                                status = 'Đang bán';
+                            } else {
+                                status = 'Ngừng bán'; 
+                            }
+                            var row = '<tr class="odd Search" id="item_'+item.ID+'">'+
+                            '<td id="nameItem_'+item.ID+'">'+item.Name+'</td>'+
+                            '<td style="text-align:center"><img src="/Content/img/'+item.Picture+'" style="width:100px; border-radius: 5px" /></td>'+
+                            '<td>'+ item.Cost+' VNĐ</td>'+
+                            '<td> '+ item.SalePrice +' VNĐ</td>'+
+                            '<td>' + item.Sum +'</td>'+
+                                 '<td> ' + item.CategoryName + '</td>' +
+                                 '<td>' + status + '</td>'+
+                            '<td><a href="/Admin/Product/Edit/'+item.ID+'" class="btn btn-info"><i class="fas fa-pen"></i></a>'+
+                                '<button class="btn btn-danger" id="btnDelete" data-id="'+item.ID+'" data-toggle="modal" data-target="#my-modal"><i class="fas fa-trash-alt"></i></button></td>'+
+                        '</tr>';
+                            $('#tblProduct').append(row);
+                        })
+                        //Phan trang
+                        if (data.numPage > 1) {
+                            $('.pagination-container .pagination').empty();
+                            for (i = 1; i <= data.numPage; i++) {
+                                let row = '<li><a href="">' + i + '</a></li>';
+                                $('.pagination-container .pagination').append(row);
+
+                            }
+                        }
+                    }
+                },
+                error: function () { }
+            });
+        }
+        $('.pagination-container').on('click', 'li', function (e) {
+            e.preventDefault();
+            page = $(this).text();
+            loadData(keySearch, page);
+            $('.pagination-container li').removeClass('active');
+            $(this).addClass('active');
+        })
+
+        function DeleteProduct() {
+            var ID, row, name;
+            $(document).on("click", "#btnDelete", function () {
+                ID = $(this).data("id");
+                row = $(this).closest('tr');
+                name = $('#nameItem_' + ID).text();
+                document.querySelector('.text-muted').innerHTML = "Bạn có chắc chắn muốn xóa " + name + " ?";
+            })
+            $(document).on("click", "#btnSubmit", function () {
+
+                $.ajax({
+                    url: '/Admin/Product/Delete',
+                    type: 'POST',
+                    data: { ID: ID },
+                    success: function (result) {
+                        if (result.success) {
+                            row.remove();
+                            toast.success("Xóa sản phẩm " + name + " thành công");
+                        } else {
+                            toast.error("Xóa sản phẩm thất bại!");
+                        }
+                    }
+                });
+            })
+        }
+
+    </script>
+}
